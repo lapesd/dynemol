@@ -1,18 +1,51 @@
-#
-.SUFFIXES:
-.SUFFIXES: .f .F .for .cpp .F90 .cu .o 
 
+.SUFFIXES: .f .F .for .cpp .F90 .cu .o
+
+# BASIC OPTIONS
+# xHost: Generate code for the highest instruction set on the host processor
+# ip: Enables interprocderual optimizations
+# fpp: Runs Fortran's preprocessor before compilation
 FC=ifort -xHost -ip -fpp
+
+# FORTRAN OPITONS
+# free: Allows the input files to be of the free format type instead of the
+# 		format specific fortran styles.
 FREE = -free
 
+# DEBUG OPTIONS
 # use this flag for debugging and coding up
-SAFE = #-check all -traceback -fstack-protector -assume protect_parens -implicitnone -warn all 
+# check all: Enables checks at run time (disables O optimizations)
+# traceback: Compiler generate more useful info in the object files
+# fstack-protector: Enables stack overflow protection
+# assume protect_parens: Do not make reassociations with parenthesis
+# warn all: Enables all warning messages
+SAFE = -check all -traceback -fstack-protector -assume protect_parens -implicitnone -warn all
 
+# FLAGS OPTIONS
+# align array64byte: Aligns arrays at specified boundaries. Whatever that
+#					 means...
 FFLAGS1 = -O3 -align #array64byte
-FFLAGS2 = -O2 -align -openmp -parallel $(FREE) $(SAFE) -static #array64byte 
 
+# align: Prevents padding bytes in arrays and structs
+# qopenmp: Enables generation of multi threaded code based on OpenMP directives
+# parallel: Tells compiler to auto generate multi threaded code where it sees
+# 			fit
+# static: Prevents linking with shared libraries
+FFLAGS2 = -O2 -align -qopenmp -parallel $(FREE) $(SAFE) -static #array64byte
+
+# C/C++ COMPILER OPTIONS
+# std=c++11: C++ 11 standard
 CXX = icpc -std=c++11
-CFLAGS = -O2 -align -xHost -ip -openmp -fno-exceptions -restrict 
+
+# align: Prevents padding bytes in arrays and structs
+# xHost: Generate code for the highest instruction set on the host processor
+# ip: Enables interprocderual optimizations
+# qopenmp: Enables generation of multi threaded code based on OpenMP directives
+# fno-exceptions: Disables the generation of exceptions table generation. When
+# 				  used, code will be smaller but try blocks will throw an error
+# restrict: Assures that an object is only acessed by a single pointer in it's
+# 			scope
+CFLAGS = -O2 -align -xHost -ip -qopenmp -fno-exceptions -restrict
 
 # MKLROOT  = If MKLROOT is not defined in your environment, edit and uncomment this line
 LIB_BLAS   = -lmkl_blas95_lp64
@@ -154,7 +187,7 @@ endif
 
 a: $(SOURCE1) $(SOURCE2) $(SOURCE_GPU) $(SOURCE_CUDA)
 	rm -f a
-	$(FC) $(INCS) -o a $(SOURCE1) $(SOURCE2) $(SOURCE_GPU) $(SOURCE_CUDA) $(LIB) 
+	$(FC) $(INCS) -o a $(SOURCE1) $(SOURCE2) $(SOURCE_GPU) $(SOURCE_CUDA) $(LIB)
 	-rm -f *.log
 
 
@@ -174,7 +207,7 @@ a: $(SOURCE1) $(SOURCE2) $(SOURCE_GPU) $(SOURCE_CUDA)
 	$(NVCC) $(NVCCFLAGS) $(INCS_GPU) $(GPU_DEFS) -c $<
 
 
-clean: 
+clean:
 	-rm -f a *.o *.mod; touch *.f
 
 depend:

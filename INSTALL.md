@@ -18,7 +18,7 @@ This file contains the installation manual of the Intel Parallel Studio needed f
 5. Go through the instructions until you hit the activation menu;
 	5.1. Insert the serial you got when you registered at step 1. It should appear in your dashboard in the Intel website. **Your products** section.
 
-6. Advance through the installer until you need to select the following components:
+6. Advance through the installer until the component selection screen. You need to select the following components:
 		6.1. Intel C/C++ Compiler;
 		6.2. Intel Fortran Compiler;
 		6.3. Intel Math Kernel Library;
