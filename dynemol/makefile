@@ -19,7 +19,7 @@ FREE = -free
 # fstack-protector: Enables stack overflow protection
 # assume protect_parens: Do not make reassociations with parenthesis
 # warn all: Enables all warning messages
-SAFE = -check all -traceback -fstack-protector -assume protect_parens -implicitnone -warn all
+SAFE = #-check all -traceback -fstack-protector -assume protect_parens -implicitnone -warn all
 
 # FLAGS OPTIONS
 # align array64byte: Aligns arrays at specified boundaries. Whatever that
