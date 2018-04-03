@@ -1,7 +1,7 @@
 
 # NOTES
 
-File created to store notes related to the development of the sofware.
+File created to store notes related to the development of the software.
 
 ---
 
@@ -31,15 +31,17 @@ With this said, I can se why OpenMP directives may not be called from pure funct
 
 ## 02/04/2018
 
+
 ### Function vs. Subroutines
 
 This is a follow-up to the Pure section above.
 
 In Fortran there are 2 types of procedures. Functions and subroutines. Each one has its own characteristics. The following descriptions are summarized version of what is found in the [WikiBooks](https://en.wikibooks.org/wiki/Fortran/Fortran_procedures_and_functions) site.
 
+
 #### Function
 
-Functions are the same thing as in other languages. You define them, with or withou parameters, and call them in the C fashion, `variable = func()`. In Fortran, functions only return one single value.
+Functions are the same thing as in other languages. You define them, with or without parameters, and call them in the C fashion, `variable = func()`. In Fortran, functions only return one single value.
 
 The parameters may, or may not, be modified inside the function. Usually defined using the `intent(in)` declaration. By default, parameters can be changed.
 
@@ -68,7 +70,8 @@ end function area
 
 Note that the `intent` is not strictly necessary. But, some compilers require it to be declared. Matter of good practices, I suppose.
 
-### Subroutines
+
+#### Subroutines
 
 Subroutines are very similar to functions. But, instead of returning values, subroutines are only allowed to perform changes in the inputs of its arguments. They DO NOT RETURN.
 
@@ -83,22 +86,9 @@ subroutine increment(i, amount)
 end subroutine increment
 ```
 
+
 ### Main
 
-When using the RET.tar input provided by the teacher, the `driver` parameter, defined in [parameters.f](dynemol/parameters.f), is `slice_A0`. This makes the program run into [AO_adiabatic.f](dynemol/AO_adiabatic.f).
+When using the RET.tar input provided by the teacher, the `driver` parameter, defined in [parameters.f](../dynemol/parameters.f), is `slice_A0`. This makes the program run into [AO_adiabatic.f](../dynemol/AO_adiabatic.f).
 
 In the `AO_adiabatic.f` we can see the main loop of the application. Line 100. The loop is called to calculate the state of the universe in the time frame provided. We see that the **Ehrenfest** function is called in it.
-
-
-### Ehrenfest function
-
-#### Parameters:
-
-##### system:
-
-The system parameter
-
-basis:
-site:
-
-
