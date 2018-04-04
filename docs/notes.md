@@ -3,7 +3,7 @@
 
 File created to store notes related to the development of the software.
 
----
+
 
 ## 29/03/2018
 
@@ -27,7 +27,7 @@ In conclusion, this keyword guarantees determinism while giving the compiler a l
 
 With this said, I can se why OpenMP directives may not be called from pure functions. The determinism goes away when adding threads, makes sense to have this limitation to avoid breaking everything up.
 
----
+
 
 ## 02/04/2018
 
@@ -91,4 +91,63 @@ end subroutine increment
 
 When using the RET.tar input provided by the teacher, the `driver` parameter, defined in [parameters.f](../dynemol/parameters.f), is `slice_A0`. This makes the program run into [AO_adiabatic.f](../dynemol/AO_adiabatic.f).
 
-In the `AO_adiabatic.f` we can see the main loop of the application. Line 100. The loop is called to calculate the state of the universe in the time frame provided. We see that the **Ehrenfest** function is called in it.
+In the `AO_adiabatic.f` we can see the main loop of the application. Line ~100. The loop is called to calculate the state of the universe in the time frame provided. We see that the **Ehrenfest** function is called in it.
+
+
+
+## 04/04/2018
+
+### Main (continued)
+
+After further analysis, and some Fortran learning by my part, I could see that the `Ehrenfest_Adiabatic` subroutine is called. The problem is that it uses an interface created in [Ehrenfest.f](../dynemol/Ehrenfest.f). Then, inside said subroutine the main `Ehrenfest` function is called.
+
+
+### Interfaces
+
+Interfaces are a rather interesting feature of the Fortran language. It allows the developer to create functions that have the same name, but different signatures. I can't think of a plausible use-case right now, but it surely seems interesting.
+
+The example below describes a very simple use of it. I call the _same_ subroutine with different number of parameters. Thus, allowing the compiler to decide which one is the correct one.
+
+Module file:
+```f90
+module Test
+implicit none
+
+public :: Inter
+
+interface Inter
+    module procedure pr
+    module procedure add
+end interface Inter
+
+
+contains
+    subroutine pr(i)
+        implicit none
+        integer :: i
+        print *, i
+    end subroutine pr
+
+    subroutine add(a, b)
+        implicit none
+        integer :: a
+        integer :: b
+        print *, a + b
+    end subroutine add
+
+end module Test
+```
+
+Main file:
+```f90
+program main
+
+use Test, only : Inter
+
+implicit none
+
+call Inter(10)		! prints 10
+call Inter(10, 1)	! prints 11
+
+end program main
+```
