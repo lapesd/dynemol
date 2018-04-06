@@ -1,25 +1,4 @@
-
-# Print help
-if [ $1 == '-h' ]
-then
-	echo "Usage:"
-	echo "test (times) (command) [args]"
-	echo ""
-	echo "	times: integer of how many times want to run command"
-	echo "	command: command to be run"
-	echo "	args: command line arguments to be passed to command"
-	echo ""
-	echo "Example:"
-	echo "	$> test 2 sleep 1"
-	echo "	> Times for each run:"
-	echo "	>      1	1.011"
-	echo "	>      2	1.010"
-	echo "	>"
-	echo "	> Medium of runs:"
-	echo "	> 1.010"
-	echo ""
-	exit 0
-fi
+#!/bin/bash
 
 # File where times will be stored
 TEMP_FILE='times.txt'
