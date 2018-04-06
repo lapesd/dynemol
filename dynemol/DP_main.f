@@ -308,7 +308,7 @@ end subroutine Build_DIPOLE_Matrix
 !
 !
 !=================================================================================================
-pure function DP_Moment_component( xyz , basis , L_vec , R_vec , R_vector , AO_mask , Fermi_state)
+function DP_Moment_component( xyz , basis , L_vec , R_vec , R_vector , AO_mask , Fermi_state)
 !=================================================================================================
 implicit none
 integer                  , intent(in) :: xyz
