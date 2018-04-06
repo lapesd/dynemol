@@ -217,6 +217,14 @@ depend:
 	@echo -en " done.\n"
 
 
+ret:
+	cd inputs/ && \
+	make ret
+
+prc:
+	cd inputs/ && \
+	make prc
+
 ## Dependency list:
 -include dependencies.txt
 

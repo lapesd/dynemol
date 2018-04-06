@@ -28,8 +28,3 @@ This file contains the installation manual of the Intel Parallel Studio needed f
 7. After selecting the correct components, just run the rest of the installation process.
 
 8. Done!
-
------
-
-# TODO
-Please see the compiling manual for more info.
