@@ -31,4 +31,5 @@ This file contains the installation manual of the Intel Parallel Studio needed f
 
 -----
 
-[TODO] Please see the compiling manual for more info.
+# TODO
+Please see the compiling manual for more info.

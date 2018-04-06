@@ -203,19 +203,19 @@ do L = K+1, system% atoms
 	F_mtx(L,K,xyz) = - F_mtx(K,L,xyz)
 end do
 ```
-TODO
+# TODO
 This part is kinda tricky. It takes the values of `F_vec` and stores it, and it's opposite values in the same 3D matrix. It stores the positive values in the line, and the negative in the columns.
 
 
 ```f90
 F_mtx(K,K,xyz) = D_zero
 ```
-TODO
+# TODO
 Zero the values.
 
 
 ```f90
 Force(xyz) = two * sum( F_mtx(K,:,xyz) )
 ```
-TODO
+# TODO
 Update the return value
