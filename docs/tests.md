@@ -46,3 +46,14 @@ Using the inputs provided in the [RET.tar](../dynemol/input/RET.tar) file, it wa
 ```
 5.99111
 ```
+
+This number will be used as a basis for the tests using the `RET.tar` input.
+
+
+#### PRC.tar
+
+Does not work at the moment. Exits with message:
+
+```
+>> execution stopped, must define eletron ...%El in ad_hoc_tuning; is ad_hoc = T_? <<
+```
