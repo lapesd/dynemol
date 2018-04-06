@@ -337,13 +337,19 @@ allocate( origin_Independent(Fermi_state) )
 
 ! origin dependent DP = sum{C_dagger * vec{R} * S_ij * C}
 
+!$OMP parallel
+    !$OMP single
     do states = 1 , Fermi_state
+        !$OMP task untied
         do i = 1 , n_basis
             a(states,i) = L_vec(states,i) * R_vector(basis(i)%atom,xyz)
         end do
 
         origin_Dependent(states) = occupancy(states) * sum( a(states,:)*R_vec(:,states) , AO_mask )
+        !$OMP end task
     end do
+    !$OMP end single
+!$OMP end parallel
 
 ! origin independent DP = sum{C_dagger * vec{DP_matrix_AO(i,j)} * C}
 
