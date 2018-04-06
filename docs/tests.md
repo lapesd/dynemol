@@ -7,69 +7,42 @@ Description of some tests created to check for the expected performance improvem
 
 First of all, there need to be a basis parameter to check for performance increases/decreases. This basis parameter, in this project, is the software received, _as is_.
 
-> By _as is_, it is meant with little, to no, modifications. The only ones made where the removal of the `pure` keyword and commenting an import. Both of them in [DP_main.f](../dynemol/DP_main.f).
-
-### Pre/Post processing
-
-Using the custom build tool [test.sh](../scripts/test.sh), we performed tests to check how much time every iteration of the program would take. For this, the variable `n_t`, in [parameters.f](../dynemol/parameters.f), was modified to 0. This was done to check how much time the software takes to do all the pre/post processing.
-
-Using the inputs provided in [RET.tar](../dynemol/inputs/RET.tar).
-
-```bash
-dynemol >$ bash ../scripts/test.sh 100 ./a
-Times for each run:
-     1	1.151
-     2	1.186
-     3	1.148
-     ...
-   100	1.002
-
-Medium of runs:
-1.031
-```
-
-With the above test, we see that the pre/post processing takes about 1.03 seconds. As this is a program that runs for hours/days, there is no need to make changes to the parts related to it.
+- By _as is_, it is meant with little modifications. The only ones made where the removal of the `pure` keyword and commenting an import. Both of them in [DP_main.f](../dynemol/DP_main.f).
 
 
-### Iterations
+## Ehrenfest Force
 
-As in [Pre/Post processing](#prepost-processing), we will edit the [parameters.f](../dynemol/parameters.f) file. Again, the `n_t` variable. But, this time, it will be changed to 1. With it, will be possible to see how much time each iteration takes.
+Using the intrinsic function `CPU_TIME`, it is possible to get an approximated time of execution of the function.
 
-Again, using the inputs from [RET.tar](../dynemol/inputs/RET.tar).
+According to Intel's [reference](https://software.intel.com/en-us/node/679160):
+
+> The time returned is summed over all active threads. The result is the sum (in units of seconds) of the current process's user time and the user and system time of all its child processes, if any.
+
+With that said, it is a very reasonable parameter to test the increase/decrease of performance between different approaches.
+
+
+### Results
+
+The following results were obtained by placing 2 calls of CPU_TIME, one before, and one after the call of the EhrenfestForce procedure, in the [AO_adiabatic.f](../dynemol/AO_adiabatic.f) file.
+
+The difference between the return values of CPU_TIME was printed to the terminal.
+
+By changing the variable `n_t`, in [parameters.f](../dynemol/parameters.f), which hold the number of iterations of the loop, to 100, we could limit the runtime of the program to a more reasonable one.
+
+Piping the result of the program to a `res.txt` file and removing **everything** but the CPU_TIME values, the following command was run to obtain the average:
 
 ```bash
-dynemol >$ bash ../scripts/test.sh 100 ./a
-Times for each run:
-     1	1.049
-     2	1.070
-     3	0.960
-     ...
-   100	0.991
-
-Medium of runs:
-1.012
+echo "scale=5; `paste -sd+ res.txt | bc` / `wc -l < res.txt`" | bc
 ```
+Quick run of the command:
+- `paste -sd+ res.txt | bc` gets the sum of all numbers, one per line, in the file;
+- `wc -l < res.txt` gets the total number of lines in the file;
+- `"scale=5; first / second" | bc` just pipes the results from the above explained scripts to `bc` and divides to a real number.
 
-# TODO
-Oddly enough, the average with 1 iteration was faster than the average with 0 iterations...
+#### RET.tar
 
-Changing `n_t` to 2, however...
+Using the inputs provided in the [RET.tar](../dynemol/input/RET.tar) file, it was possible to get the following average `CPU_TIME` of the function:
 
-```bash
-dynemol >$ bash ../scripts/test.sh 100 ./a
-Times for each run:
-     1	1.606
-     2	1.601
-     3	1.369
-     ...
-   100	1.406
-
-Medium of runs:
-1.415
 ```
-
-Here we see a bigger change in processing time. Further testing, for 3, 4, 5 and 10 iterations got the following averages respectively:
-- 1.579
-- 1.589
-- 1.593
-- 3.003
+5.99111
+```
