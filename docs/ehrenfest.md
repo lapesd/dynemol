@@ -9,8 +9,9 @@ File where the Ehrenfest function ([file](../dynemol/Ehrenfest.f)) is described 
 
 ### system
 
-`type(structure), intent(inout) :: system`
-
+```f90
+type(structure), intent(inout) :: system
+```
 Describe the universe of the model being simulated. It's parameters vary between constants of this said universe to big allocatable arrays to be used to store many of its values.
 
 It is fair to note that it only stores default data types. Such as `real`, `complex` etc.
@@ -18,15 +19,17 @@ It is fair to note that it only stores default data types. Such as `real`, `comp
 
 ### basis
 
-`type(STO_basis), intent(in) :: basis(:)`
-
+```f90
+type(STO_basis), intent(in) :: basis(:)
+```
 Describes many values to be used in the calculations. It is a simpler custom type than the `structure` one. It does not have allocatable arrays and only seems to store a finite set of variables. All of them, default data types.
 
 
 ### site
 
-`integer, intent(in) :: site`
-
+```f90
+integer, intent(in) :: site
+```
 Seems to be the index of the atom which we want to calculate the value of.
 
 
@@ -35,7 +38,9 @@ Seems to be the index of the atom which we want to calculate the value of.
 
 ### Force
 
-`real*8 :: Force(3)`
+```f90
+real*8 :: Force(3)
+```
 
 
 ## Code
@@ -203,19 +208,16 @@ do L = K+1, system% atoms
 	F_mtx(L,K,xyz) = - F_mtx(K,L,xyz)
 end do
 ```
-# TODO
 This part is kinda tricky. It takes the values of `F_vec` and stores it, and it's opposite values in the same 3D matrix. It stores the positive values in the line, and the negative in the columns.
 
 
 ```f90
 F_mtx(K,K,xyz) = D_zero
 ```
-# TODO
-Zero the values.
+Sets the current place in the diagonal to 0.
 
 
 ```f90
 Force(xyz) = two * sum( F_mtx(K,:,xyz) )
 ```
-# TODO
-Update the return value
+Update return value.
