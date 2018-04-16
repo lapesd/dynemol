@@ -57,3 +57,9 @@ Does not work at the moment. Exits with message:
 ```
 >> execution stopped, must define eletron ...%El in ad_hoc_tuning; is ad_hoc = T_? <<
 ```
+
+=====
+
+After some studying, it was discovered that there already is one OMP directive inside a procedure called within the `ehrenfest` procedure. This OMP directive is directly above a huge do loop with many loops inside it.
+
+After its removal, we saw the time that takes to compute the function double. From `5.99111` described above to `12.07070`.
