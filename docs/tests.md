@@ -3,63 +3,76 @@
 Description of some tests created to check for the expected performance improvements when using some technique.
 
 
-## Parameters
+## Why?
 
 First of all, there need to be a basis parameter to check for performance increases/decreases. This basis parameter, in this project, is the software received, _as is_.
 
 - By _as is_, it is meant with little modifications. The only ones made where the removal of the `pure` keyword and commenting an import. Both of them in [DP_main.f](../dynemol/DP_main.f).
 
-
-## Ehrenfest Force
-
-Using the intrinsic function `CPU_TIME`, it is possible to get an approximated time of execution of the function.
-
-According to Intel's [reference](https://software.intel.com/en-us/node/679160):
+Using the intrinsic function `CPU_TIME`, it is possible to get an approximated time of execution of the function. According to Intel's [reference](https://software.intel.com/en-us/node/679160):
 
 > The time returned is summed over all active threads. The result is the sum (in units of seconds) of the current process's user time and the user and system time of all its child processes, if any.
 
 With that said, it is a very reasonable parameter to test the increase/decrease of performance between different approaches.
 
 
-### Results
+### How
 
-The following results were obtained by placing 2 calls of CPU_TIME, one before, and one after the call of the EhrenfestForce procedure, in the [AO_adiabatic.f](../dynemol/AO_adiabatic.f) file.
+- By placing 2 calls of `CPU_TIME`, one before, and one after the call of the EhrenfestForce procedure, in the [AO_adiabatic.f](../dynemol/AO_adiabatic.f) file, we can obtain a fairly good approximation of the execution time of the function.
 
-The difference between the return values of CPU_TIME was printed to the terminal.
+- The difference between the return values of `CPU_TIME` was printed to the terminal. Along with everything else the program outputs.
 
-By changing the variable `n_t`, in [parameters.f](../dynemol/parameters.f), which hold the number of iterations of the loop, to 100, we could limit the runtime of the program to a more reasonable one.
+- By changing the variable `n_t`, in [parameters.f](../dynemol/parameters.f), which hold the number of iterations of the main loop, to 100, we limit the runtime of the program to a more reasonable one. Minutes instead of hours.
 
-Piping the result of the program to a `res.txt` file and removing **everything** but the CPU_TIME values, the following command was run to obtain the average:
+- Piping the result of the program to a `res.txt` file and removing everything but the `CPU_TIME` values with a text editor.
+
+- The following command was run to obtain the average:
 
 ```bash
 echo "scale=5; `paste -sd+ res.txt | bc` / `wc -l < res.txt`" | bc
+# paste and bc get the sum of all lines
+# wl get the number of lines in the file
+# bc divides both numbers
 ```
-Quick run of the command:
-- `paste -sd+ res.txt | bc` gets the sum of all numbers, one per line, in the file;
-- `wc -l < res.txt` gets the total number of lines in the file;
-- `"scale=5; first / second" | bc` just pipes the results from the above explained scripts to `bc` and divides to a real number.
+
+## Result
 
 #### RET.tar
 
-Using the inputs provided in the [RET.tar](../dynemol/input/RET.tar) file, it was possible to get the following average `CPU_TIME` of the function:
-
+Using the inputs provided in the [RET.tar](../dynemol/input/RET.tar) file, it was possible to get the following averages:
 ```
-5.99111
-```
-
-This number will be used as a basis for the tests using the `RET.tar` input.
-
-
-#### PRC.tar
-
-Does not work at the moment. Exits with message:
-
-```
->> execution stopped, must define eletron ...%El in ad_hoc_tuning; is ad_hoc = T_? <<
+7.44735
+7.66855
+7.56880
 ```
 
-=====
+These numbers will be used as a basis for the tests using the `RET.tar` input.
 
-After some studying, it was discovered that there already is one OMP directive inside a procedure called within the `ehrenfest` procedure. This OMP directive is directly above a huge do loop with many loops inside it.
+##### OMP Directives
 
-After its removal, we saw the time that takes to compute the function double. From `5.99111` described above to `12.07070`.
+The following tests show the performance impacts in executing the code without some OMP directives:
+
+Removed from Ehrenfest function in [Ehrenfest.f](../dynemol/Ehrenfest.f):
+```
+6.90436
+6.88848
+6.98351
+```
+
+Removed from Pulay overlap subroutine in [overlap_D.f](../dynemol/overlap_D.f):
+```
+12.90012
+13.01070
+12.97515
+```
+
+Removed from both, Pulay overlap subroutine and Ehrenfest function:
+```
+7.97534
+8.04893
+8.00157
+```
+
+## Conclusion
+
+As it is possible to note, there is some unexpected behavior of the times taken by the program. It was expected that the removal of the OMP directive from the any of the files would result in loss of performance. Instead, removal from the Ehrenfest function resulted in an **increase** of performance.
