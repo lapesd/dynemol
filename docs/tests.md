@@ -40,10 +40,16 @@ echo "scale=5; `paste -sd+ res.txt | bc` / `wc -l < res.txt`" | bc
 #### RET.tar
 
 Using the inputs provided in the [RET.tar](../dynemol/input/RET.tar) file, it was possible to get the following averages:
-```
+
+```bash
+# first batch
 7.44735
 7.66855
 7.56880
+# second batch
+7.39244
+7.87155
+7.36505
 ```
 
 These numbers will be used as a basis for the tests using the `RET.tar` input.
@@ -53,26 +59,55 @@ These numbers will be used as a basis for the tests using the `RET.tar` input.
 The following tests show the performance impacts in executing the code without some OMP directives:
 
 Removed from Ehrenfest function in [Ehrenfest.f](../dynemol/Ehrenfest.f):
-```
+```bash
+# first batch
 6.90436
 6.88848
 6.98351
+# second batch
+6.73591
+6.51842
+6.64565
 ```
 
 Removed from Pulay overlap subroutine in [overlap_D.f](../dynemol/overlap_D.f):
-```
+```bash
+# first batch
 12.90012
 13.01070
 12.97515
+# second batch
+12.29959
+13.09789
+12.51462
 ```
 
 Removed from both, Pulay overlap subroutine and Ehrenfest function:
-```
+```bash
+# first batch
 7.97534
 8.04893
 8.00157
+# second batch
+7.92181
+7.93090
+8.02755
 ```
 
 ## Conclusion
 
-As it is possible to note, there is some unexpected behavior of the times taken by the program. It was expected that the removal of the OMP directive from the any of the files would result in loss of performance. Instead, removal from the Ehrenfest function resulted in an **increase** of performance.
+As it is possible to note, there is some unexpected behavior of the times taken by the program. It was expected that the removal of the OMP directive from any of the files would result in loss of performance. Instead, removal from the Ehrenfest function resulted in an **increase** of performance.
+
+The removal of the Pulay subroutines' OMP directives caused, as expected, an increase in the time taken to perform calculations. **BUT**, oddly enough, the removal of both, Pulay's and Ehrenfest's, OMP directives caused the execution to be performed faster than the one without Pulay's only.
+
+So, there seems to be two options here:
+- There is something extremely wrong with the tests;
+- There is some kind of barrier with the OMP threads that prevents the program to run properly.
+
+
+### Disclaimer
+
+All tests described above were executed in the following machine:
+- Intel(R) Xeon(R) CPU E5-2640 v4 @ 2.40GHz
+- 128 Gb RAM
+- NVIDIA Tesla K40c
