@@ -73,15 +73,15 @@ module DP_excited_m
 
  CALL Build_DIPOLE_Matrix( FMO_system , FMO_basis )
 
-!$OMP sections
 
-    !$OMP section
+
+    
     CALL DP_moments( FMO_system , FMO_basis , FMO%L , FMO%R , "hole" , hole_DP )
 
-    !$OMP section
+    
     CALL DP_moments( FMO_system , FMO_basis , FMO%L , FMO%R , "electron" , excited_DP )
 
-!$OMP end sections
+
 
  DeAllocate( FMO_basis )
  DeAllocate( moiety_DP_matrix_AO )

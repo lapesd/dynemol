@@ -355,7 +355,7 @@ mm = size(AO_bra(:,1))
 
 erg_el = (0.d0,0.d0)
 erg_hl = (0.d0,0.d0)
-!$OMP parallel do private(i,j) default(shared) reduction(+ : erg_el , erg_hl)
+
 do j = 1 , mm
     do i = 1 , mm
 
@@ -364,7 +364,7 @@ do j = 1 , mm
 
     end do
 end do
-!$OMP end parallel do  
+
 
 Unit_Cell% QM_wp_erg(1) = erg_el
 Unit_Cell% QM_wp_erg(2) = erg_hl

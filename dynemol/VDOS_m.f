@@ -72,7 +72,7 @@ integer :: i, nr
 v0_norm    = 0.d0
 v0_norm_mw = 0.d0
 
-!$omp parallel do private(i,nr) default(shared) reduction(+:v0_norm,v0_norm_mw) if(Natoms > SERIAL_THRESHOLD)
+
 do i = 1, Natoms
 
     nr = atom(i) % nr
@@ -84,7 +84,7 @@ do i = 1, Natoms
     v0_norm_mw(nr) = v0_norm_mw(nr) + VEC3_DOT_PROD( mw_v0(i)%vel, v0(i)%vel )
 
 end do
-!$omp end parallel do
+
 
 v0_norm(0)    = sum( v0_norm   (1:Nres) )
 v0_norm_mw(0) = sum( v0_norm_mw(1:Nres) )
@@ -208,13 +208,13 @@ allocate( auto_corr   (0:Nres), source = 0.d0)
 allocate( auto_corr_mw(0:Nres), source = 0.d0)
 
 ! Calculate <v(0).v(t)>
-!$omp parallel do private(i,j) default(shared) reduction(+:auto_corr,auto_corr_mw) if(Natoms > SERIAL_THRESHOLD)
+
 do i = 1, Natoms
     j = atom(i) % nr
     auto_corr(j)    = auto_corr(j)    + VEC3_DOT_PROD(    v0(i)%vel, atom(i)%vel )  ! auto-correlalation
     auto_corr_mw(j) = auto_corr_mw(j) + VEC3_DOT_PROD( mw_v0(i)%vel, atom(i)%vel )  ! mass-weighted auto-correlalation
 end do
-!$omp end parallel do
+
 
 auto_corr   (0) = sum( auto_corr   (1:Nres) )
 auto_corr_mw(0) = sum( auto_corr_mw(1:Nres) )

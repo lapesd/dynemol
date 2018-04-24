@@ -135,7 +135,7 @@ subroutine Matrix_Symmetrize( A, UpLo )
 
     if( UpLo == 'U' .or. UpLo == 'u' ) then    ! Copy the upper part to the lower
         ! Loop trough blocks
-        !$omp parallel do schedule(dynamic) private(jj,ii,j,i) default(shared)
+        
         do jj = 1, n, block
             do ii = 1, jj-1, block
                 ! Loop inside block:
@@ -152,10 +152,10 @@ subroutine Matrix_Symmetrize( A, UpLo )
             end do
             end do
         end do
-        !$omp end parallel do
+        
     else                                       ! Copy the lower part to the upper
         ! Loop trough blocks
-        !$omp parallel do schedule(dynamic) private(jj,ii,j,i) default(shared)
+        
         do jj = 1, n, block
             ! Diagonal block is the first
             do j = jj+1, min( n, jj+block )
@@ -172,7 +172,7 @@ subroutine Matrix_Symmetrize( A, UpLo )
                 end do
             end do
         end do
-        !$omp end parallel do
+        
     end if
 end subroutine Matrix_Symmetrize
 

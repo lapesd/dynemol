@@ -67,7 +67,7 @@ eintra = D_zero
 
 ! ##################################################################
 ! vself part of the Coulomb calculation
-!$OMP parallel do private(i,nresid,j1,j2,j,rjk,rjkq,rjksq,tmp) default(shared)
+
 do i = 1 , MM % N_of_atoms 
 
     nresid = atom(i) % nr
@@ -92,11 +92,11 @@ do i = 1 , MM % N_of_atoms
         end do
     end if
 end do
-!$OMP end parallel do
+
 
 pikap = 0.5d0 * vrecut + rsqpi * KAPPA * coulomb * factor3
 
-!$OMP parallel do private(i,nresid,j1,j2,j,erfkrq) default(shared) reduction( + : vself )
+
 do i = 1 , MM % N_of_atoms
 
     vself  = vself + pikap * atom(i) % charge * atom(i) % charge
@@ -117,16 +117,16 @@ do i = 1 , MM % N_of_atoms
        end do
     endif
 end do
-!$OMP end parallel do
+
 
 eintra = eintra + vself
 
 !##############################################################################
-!$OMP parallel DO &
-!$OMP private (k, l, atk, atl, rklq, rklsq, chrgk, chrgl, sr2, sr6, sr12, KRIJ, rij, rkl, fs, vsr, vreal, &
-!$OMP          expar, freal, nresidk, nresidl , ithr , eps , n , flag1 , flag2 )                          &
-!$OMP reduction (+ : pot, ecoul, evdw, stressr11, stressr22, stressr33, stressr12, stressr13, stressr23,  &
-!$OMP                                  stresre11, stresre22, stresre33, stresre12, stresre13, stresre23)
+
+
+
+
+
                    
 ! LJ and Coulomb calculation
 
@@ -251,7 +251,7 @@ do k = 1 , MM % N_of_atoms - 1
         end if
     end do
 end do
-!$OMP end parallel do
+
 
 ! ################################################################################3
 

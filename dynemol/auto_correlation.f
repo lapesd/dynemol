@@ -308,16 +308,16 @@ erg(:,2) = UNI_hl%erg(iEmin:iEmax)     ! hl energies
 
 allocate( occup_erg(nE,n_part) )
 
-!$omp parallel private(p,i,j) shared(n_part,iEmin,iEmax)
-!$omp do collapse(2)
+
+
 do p = 1, n_part
 do i = iEmin, iEmax
     j = i - iEmin + 1
     occup_erg(j,p) = dreal( bra(i,p)*ket(i,p) )    ! imag. part is zero by construction (checked)
 end do
 end do
-!$omp end do
-!$omp end parallel
+
+
 
 ! write to file
 write(out_Occ) t, erg(:,:), occup_erg(:,:)
@@ -330,8 +330,8 @@ allocate( coh_diag(n_part), coh_off(n_part) )
 
 coh_diag = 0.d0
 coh_off  = 0.d0
-!$omp  parallel do private(i,j,p,rho) default(shared) &
-!$omp& collapse(2) reduction(+:coh_diag,coh_off)
+
+
 do p = 1, n_part
 do i = 1, n
 
@@ -345,7 +345,7 @@ do i = 1, n
 
 end do
 end do
-!$omp end parallel do
+
 
 coh_off = 2.d0*coh_off  ! We used the Hermitian symmetry of rho above, so the factor 2
 

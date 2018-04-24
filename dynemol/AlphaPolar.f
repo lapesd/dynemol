@@ -119,7 +119,7 @@ ALLOCATE( H0(size(basis),size(basis)) , source=D_zero)
 
 If( DP_field_ .OR. Induced_ ) then
 
-    !$OMP PARALLEL DO schedule( GUIDED , 10 )
+    
     do j = 1 , size(basis)
         do i = 1 , j
      
@@ -127,7 +127,7 @@ If( DP_field_ .OR. Induced_ ) then
 
         end do
     end do  
-    !$OMP END PARALLEL DO
+    
 
 else
  

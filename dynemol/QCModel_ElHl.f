@@ -290,7 +290,7 @@ logical :: flag
 
 ALLOCATE( H_DP(size(basis),size(basis)) , source = D_zero )
 
-!$OMP PARALLEL DO private ( i , j , flag , DP , vector ) schedule( GUIDED , 10 )
+
 do j = 1 , size(basis)
     do i = 1 , j
 
@@ -310,7 +310,7 @@ do j = 1 , size(basis)
 
     end do
 end do  
-!$OMP END PARALLEL DO
+
 
 end subroutine H_DP_Builder
 !

@@ -108,11 +108,11 @@ CALL DeAllocate_DPs( molecule , nr_max , flag = "alloc" )
 
 allocate( Qi_Ri(a%atoms,3) , source = D_zero )     
 
-!$OMP parallel default(shared) private( nr , nr_atoms , a , i1 , i2 , i , j , Qi_Ri , total_valence , np )
-!$OMP single
+
+
 do nr = first_nr , last_nr 
 
-!$OMP task
+
 
     ! No of atoms with tag nr ...
     nr_atoms = count( a%nr == nr ) 
@@ -146,12 +146,12 @@ do nr = first_nr , last_nr
 
     end If
 
-!$OMP end task    
+
 
 end do
 
-!$OMP end single
-!$OMP end parallel
+
+
 
 deallocate( Qi_Ri )
 

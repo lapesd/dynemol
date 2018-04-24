@@ -61,7 +61,7 @@ dumb_s = S_matrix
 
 If( DP_field_ .OR. Induced_ ) then
 
-!$OMP PARALLEL DO schedule( GUIDED , 10 )
+
     do j = 1 , size(basis)
         do i = j, size(basis)
      
@@ -69,7 +69,7 @@ If( DP_field_ .OR. Induced_ ) then
 
         end do
     end do  
-!$OMP END PARALLEL DO
+
 
 else
     do j = 1 , size(basis)

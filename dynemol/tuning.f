@@ -2,7 +2,7 @@ module tuning_m
 
     use type_m
     use constants_m
-    use parameters_m    , only  : T_ , F_ , static
+    use parameters_m       , only : T_ , F_ , static
 
     public :: ad_hoc_tuning
 
@@ -31,7 +31,6 @@ type(universe) , intent(inout) :: univ
 !-----------------------------------
 !      define %atom
 !-----------------------------------
- univ % atom(51:100) % V_shift = 5.d1
 
 !-----------------------------------
 !      define %residue
@@ -47,27 +46,33 @@ type(universe) , intent(inout) :: univ
 
 !---------------------------------------------------
 !      define %QMMM  
-!      default is QMMM = QM; set QMMM = MM for classical atoms ... 
+!      default is QMMM = QM  
+!      set QMMM = MM for classical atoms ... 
 !---------------------------------------------------
 
 !---------------------------------------------------
 !      define %El   : mandatory !!
 !---------------------------------------------------
+where(univ % atom % residue == "RET") univ % atom % El = .true.
 
 !---------------------------------------------------
 !      define %Hl   : must be T_ for El/Hl calcs ...
 !---------------------------------------------------
+where(univ % atom % residue == "RET") univ % atom % Hl = .true.
 
 !----------------------------------------------------
 !      define %fragment 
 !----------------------------------------------------
-
 !default: %El => DONOR
 If( any(univ % atom%El) ) then
     where( univ % atom % El ) univ % atom % fragment = "D"
 else
     if(.NOT. static) stop ">> execution stopped, must define eletron ...%El in ad_hoc_tuning; is ad_hoc = T_? <<"
 end If
+
+univ % atom(1:22)  % fragment = 'L'
+univ % atom(23:36) % fragment = 'T'
+univ % atom(37:48) % fragment = 'S'
 
 !......................................................................
 
@@ -142,17 +147,14 @@ select case ( instance )
 !----------------------------------
 
 
-    case ("MegaMass")
-
-!----------------------------------
-!     Selective_Dynamics 
-!----------------------------------
-
-where( atom % MMSymbol == "HM" ) atom % mass = large
+    
+!----------------------------------------
+ case ("MegaMass")  ! Selective_Dynamics 
+!----------------------------------------
 
 
-    case( 'SpecialBonds' )
 
+case( 'SpecialBonds' )
 !----------------------------------
 !      define SPECIAL bonds
 !----------------------------------

@@ -75,7 +75,7 @@ forall(k=1:npoints) SPEC%grid(k) = (k-1)*step
 allocate( SPEC_peaks(npoints) , source = 0.d0 )
 allocate( SPEC_func (npoints) , source = 0.d0 )
 
-!$OMP parallel do private( resonance ) reduction( + : SPEC_peaks , SPEC_func ) 
+
 do j=1,dim_ket 
     do i=1,dim_bra
 
@@ -93,7 +93,7 @@ do j=1,dim_ket
 
     end do
 end do
-!$OMP end parallel do
+
 
 SPEC%peaks = SPEC_peaks
 SPEC%func  = SPEC_func
@@ -189,60 +189,60 @@ allocate( right ( dim_basis  , dim_ket) )
 
 forall(i=1:dim_ket) right(:,i) = QM%R(:,DP%ket_PTR(i)) 
 
-!$OMP parallel 
+
     do xyz = 1 , 3
 
-        !$OMP single
+        
         do j = 1 , dim_basis 
-            !$OMP task shared(left,QM,R_vector)
+            
             do i = 1 , dim_bra   
                 left(i,j) = QM%L(DP%bra_PTR(i),j) * R_vector(basis(j)%atom,xyz) / two
             end do
-            !$OMP end task
+            
         end do
-        !$OMP end single
+        
 
-        !$OMP single
+        
         do j = 1 , dim_ket   
-            !$OMP task shared(origin_Dependent,left,right)
+            
             do i = 1 , dim_bra 
                 origin_Dependent(i,j)%DP(xyz) = sum( left(i,:) * right(:,j) )
             end do
-            !$OMP end task
+            
         end do
-        !$OMP end single
+        
 
     end do
-!$OMP end parallel
+
 
 forall(i=1:dim_bra) a(i,:) = QM%L(DP%bra_PTR(i),:)
 
-!$OMP parallel 
-    !$OMP single
+
+    
     do i = 1 , dim_ket 
-        !$OMP task shared(right)
+        
         do j = 1 , dim_basis   
             right(j,i) = QM%L(DP%ket_PTR(i),j)
         end do
-        !$OMP end task
+        
     end do
-    !$OMP end single
-!$OMP end parallel
+    
+
 
 do xyz = 1 , 3  
     matrix = DP_matrix_AO(:,:,xyz)
     CALL gemm(a,matrix,left,'N','N',one,zero)    
-    !$OMP parallel 
-        !$OMP single
+    
+        
         do j = 1 , dim_ket 
-            !$OMP task shared(origin_Independent,left,right)
+            
             do i = 1 , dim_bra  
                 origin_Independent(i,j)%DP(xyz) = sum( left(i,:) * right(:,j) ) / two
             end do
-            !$OMP end task
+            
         end do
-        !$OMP end single
-    !$OMP end parallel
+        
+    
 end do
 
 deallocate( a , left , right )
@@ -254,60 +254,60 @@ allocate( right ( dim_basis  , dim_bra) )
 
 forall(i=1:dim_bra) right(:,i) = QM%R(:,DP%bra_PTR(i))
 
-!$OMP parallel
+
     do xyz = 1 , 3
 
-        !$OMP single
+        
         do j = 1 , dim_basis  
-            !$OMP task shared(left,QM,R_vector)
+            
             do i = 1 , dim_ket   
                 left(i,j) = QM%L(DP%ket_PTR(i),j) * R_vector(basis(j)%atom,xyz) / two
             end do
-            !$OMP end task
+            
         end do
-        !$OMP end single
+        
 
-        !$OMP single
+        
         do j = 1 , dim_ket   
-            !$OMP task shared(origin_Dependent,left,right)
+            
             do i = 1 , dim_bra   
                 origin_Dependent(i,j)%DP(xyz) = origin_Dependent(i,j)%DP(xyz) + sum( left(j,:) * right(:,i) )
             end do
-            !$OMP end task
+            
         end do
-        !$OMP end single
+        
 
     end do
-!$OMP end parallel    
+
 
 forall( i=1:dim_ket ) a(i,:) = QM%L(DP%ket_PTR(i),:)
 
-!$OMP parallel    
-    !$OMP single
+
+    
     do i = 1 , dim_bra 
-        !$OMP task shared(right)
+        
         do j = 1 , dim_basis   
             right(j,i) =  QM%L(DP%bra_PTR(i),j)
         end do
-        !$OMP end task
+        
     end do
-    !$OMP end single
-!$OMP end parallel    
+    
+
 
 do xyz = 1 , 3  
     matrix = DP_matrix_AO(:,:,xyz)
     CALL gemm(a,matrix,left,'N','N',one,zero)    
-    !$OMP parallel    
-        !$OMP single
+    
+        
         do j = 1 , dim_ket  
-            !$OMP task
+            
             do i = 1 , dim_bra  
                 origin_Independent(i,j)%DP(xyz) = origin_Independent(i,j)%DP(xyz) + sum( left(j,:) * right(:,i) ) / two
             end do
-            !$OMP end task
+            
         end do
-        !$OMP end single
-    !$OMP end parallel    
+        
+    
 end do
 
 deallocate( a , left , right )

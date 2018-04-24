@@ -33,14 +33,13 @@ logical :: dynamic
 ! ACTION	flags
 !
   DRIVER         = "slice_AO"                ! <== q_dynamics , avrg_confgs , Genetic_Alg , diagnostic , slice_[Cheb, AO, ElHl ] , MM_Dynamics
-!  DRIVER         = "Genetic_Alg"             ! <== q_dynamics , avrg_confgs , Genetic_Alg , diagnostic , slice_[Cheb, AO, ElHl ] , MM_Dynamics
 !			
   nuclear_matter = "MDynamics"               ! <== solvated_sys , extended_sys , MDynamics
 !			
 !			
   Survival       = T_                       
   DP_Moment      = F_                       
-  QMMM           = F_
+  QMMM           = T_
   OPT_parms      = T_                        ! <== read OPT_basis parameters from "OPT_eht_parameters.input.dat"
   ad_hoc         = T_                        ! <== ad hoc tuning of parameters
 
@@ -61,7 +60,7 @@ logical :: dynamic
   Alpha_Tensor      = F_                      ! <== Embeded Finite Field Polarizability 
   EHM_Forces        = F_                      ! <== for diagnostic only: Hellman-Feynman-Pulay forces for Ext. Huckel 
 
-  GaussianCube      = T_                       
+  GaussianCube      = F_                       
   GaussianCube_step = 500                     ! <== time step for saving Gaussian Cube files
 
   NetCharge         = F_                      ! <== pdb format charge Occupancy 
@@ -92,8 +91,8 @@ logical :: dynamic
 !           QDynamics parameters
 !
   t_i  =  0.d0                              
-  t_f  =  1.0d-2                              ! <== final time in PICOseconds
-  n_t  =  4000                                ! <== number of time steps
+  t_f  =  0.50d-1                             ! <== final time in PICOseconds
+  n_t  =  100                              ! <== number of time steps
 
   n_part = 2                                  ! <== # of particles to be propagated: default is e=1 , e+h=2 
 
@@ -132,12 +131,12 @@ logical :: dynamic
 !           Genetic_Alg and CG OPTIMIZATION parameters
 !
 
-  Pop_Size       =  50  
+  Pop_Size       =  500  
   N_generations  =  10    
   Top_Selection  =  20                     ! <== top selection < Pop_Size
-  Pop_range      =  0.05d0                 ! <== range of variation of parameters
+  Pop_range      =  0.35d0                 ! <== range of variation of parameters
   Mutation_rate  =  0.5           
-  Mutate_Cross   =  F_                     ! <== false -> pure Genetic Algorithm ; prefer false for fine tunning !
+  Mutate_Cross   =  T_                     ! <== false -> pure Genetic Algorithm ; prefer false for fine tunning !
 
   CG_            =  F_                     ! <== use conjugate gradient method after genetic algorithm
   profiling      =  T_                     ! <== for tuning the optimization parameters of the code
@@ -155,8 +154,6 @@ select case( DRIVER )
 
         dynamic = F_ .OR. Survival
 
-        If( Top_Selection > Pop_size ) stop ">> Top_Selection > Pop_size; execution aborted"
-
     case( "MM_Dynamics" )
 
         QMMM = F_
@@ -171,7 +168,7 @@ end select
 static = .not. dynamic
 
 ! verbose is T_ only if ...
-verbose = (DRIVER /= "Genetic_Alg") .AND. (DRIVER /= "slice_AO") .AND. (DRIVER /= "slice_Cheb") 
+verbose = (DRIVER /= "Genetic_Alg") .AND. (DRIVER /= "slice_AO") .AND. (DRIVER /= "slice_Cheb")
 
 If ( DRIVER(1:5)=="slice" .AND. nuclear_matter=="extended_sys" .AND. file_type=="structure" ) then
     Print*," >>> halting: " 

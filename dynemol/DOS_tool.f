@@ -77,15 +77,15 @@ forall(k=1:npoints) PDOS(nr)%grid(k) = (k-1)*step + DOS_range%inicio
 allocate( tmp_PDOS_peaks (npoints) , source = D_zero )
 allocate( tmp_PDOS_func  (npoints) , source = D_zero )
 
-!$OMP parallel 
-    !$OMP DO reduction(+ : tmp_PDOS_peaks , tmp_PDOS_func )
+
+    
     do l = 1 , n_of_atoms
 
         CALL tmp_PDOS( system , QM , l , PDOS(nr)%grid , tmp_PDOS_peaks , tmp_PDOS_func )
 
     end do
-    !$OMP END DO
-!$OMP end parallel
+    
+
 
 PDOS(nr)%peaks = tmp_PDOS_peaks
 PDOS(nr)%func  = tmp_PDOS_func

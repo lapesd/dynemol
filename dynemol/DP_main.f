@@ -146,13 +146,13 @@ If( hole_state /= I_zero ) then
 
         If( (eh_tag(1) /= "el") .OR. (eh_tag(2) /= "hl") ) pause ">>> check call to wavepacket_DP in DP_main.f <<<"
 
-!$OMP PARALLEL SECTIONS
-        !$OMP SECTION
+
+        
         hole_DP    =  wavepacket_DP( basis , AO_mask , R_vector , AO_bra(:,2) , AO_ket(:,2) , Dual_ket(:,2) )
 
-        !$OMP SECTION
+        
         excited_DP =  wavepacket_DP( basis , AO_mask , R_vector , AO_bra(:,1) , AO_ket(:,1) , Dual_ket(:,1) )
-!$OMP END PARALLEL SECTIONS
+
 
     end If
 
@@ -202,8 +202,8 @@ lmult = 1 ! <== DIPOLE MOMENT
 
 DP_matrix_AO = D_zero
 
-!$omp parallel do schedule(dynamic,100) default(shared)&
-!$omp private(ib,ia,atom_not_moved,Rab,jb,ja,b,a,k,nb,na,lb,la,mb,ma,j,i,expb,expa,rl,rl2,qlm)
+
+
 do ib = 1 , system%atoms
 do ia = 1 , system%atoms
 
@@ -289,7 +289,7 @@ do ia = 1 , system%atoms
     enddo
 10 end do
 end do
-!$omp end parallel do
+
 
 ! save DP_Matrix_AO for reuse ...
 If( (.NOT. static) .AND. (.NOT. done) ) then
@@ -337,19 +337,19 @@ allocate( origin_Independent(Fermi_state) )
 
 ! origin dependent DP = sum{C_dagger * vec{R} * S_ij * C}
 
-!$OMP parallel
-    !$OMP single
+
+    
     do states = 1 , Fermi_state
-        !$OMP task untied
+        
         do i = 1 , n_basis
             a(states,i) = L_vec(states,i) * R_vector(basis(i)%atom,xyz)
         end do
 
         origin_Dependent(states) = occupancy(states) * sum( a(states,:)*R_vec(:,states) , AO_mask )
-        !$OMP end task
+        
     end do
-    !$OMP end single
-!$OMP end parallel
+    
+
 
 ! origin independent DP = sum{C_dagger * vec{DP_matrix_AO(i,j)} * C}
 
