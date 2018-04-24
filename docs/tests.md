@@ -5,9 +5,28 @@ Description of some tests created to check for the expected performance improvem
 
 ## Why?
 
-First of all, there need to be a basis parameter to check for performance increases/decreases. This basis parameter, in this project, is the software received, _as is_.
+First of all, there need to be a basis parameter to check for performance increases/decreases. This basis parameter, in this project, is the software received, _as is_, with all the OMP directives removed.
 
-- By _as is_, it is meant with little modifications. The only ones made where the removal of the `pure` keyword and commenting an import. Both of them in [DP_main.f](../dynemol/DP_main.f).
+- By _as is_, it is meant with little modifications. The only ones made where the removal of the `pure` keyword and commenting an import. Both of them in [DP_main.f](../dynemol/DP_main.f). After further discussion with the teacher, it was probably because of compilers versions.
+
+
+### OMP Removal
+
+Luckily, the OMP directives obey a very simple set of rules. They are all used with `!$OMP`. This makes very easy to remove them with the help of a tool. With that said, to remove all the OMP directives, the following UNIX command was used:
+```bash
+sed -i.bak 's|\!\$\s*OMP.*||gI' *.f* *.F*
+```
+Explanation of above command:
+- `sed`, as described in the man [page](https://linux.die.net/man/1/sed):
+>  sed - stream editor for filtering and transforming text
+- `-i.bak` is a flag used to tell the tool to edit the file in place, creating an `.bak` file as backup;
+- `'s|\!\$\s*OMP.*||gI'` is quite the RegEx to match things.
+  - This part works as this: `s|text_to_find|text_to_replace_with|g`. Which means `sed` is going to find everything that matches `text_to_find` and replace it with `text_to_replace_with`;
+  - For more info about this regular expression, see [here](https://regex101.com/r/utEl19/1);
+- `*.f* *.F*` is just the shell way of telling to apply the command to every file that have an `.f` or `.F` in it's name.
+
+
+### Timing
 
 Using the intrinsic function `CPU_TIME`, it is possible to get an approximated time of execution of the function. According to Intel's [reference](https://software.intel.com/en-us/node/679160):
 
@@ -16,7 +35,7 @@ Using the intrinsic function `CPU_TIME`, it is possible to get an approximated t
 With that said, it is a very reasonable parameter to test the increase/decrease of performance between different approaches.
 
 
-### How
+#### How
 
 - By placing 2 calls of `CPU_TIME`, one before, and one after the call of the EhrenfestForce procedure, in the [AO_adiabatic.f](../dynemol/AO_adiabatic.f) file, we can obtain a fairly good approximation of the execution time of the function.
 
@@ -37,10 +56,9 @@ echo "scale=5; `paste -sd+ res.txt | bc` / `wc -l < res.txt`" | bc
 
 ## Result
 
-#### RET.tar
+##### _as is_
 
 Using the inputs provided in the [RET.tar](../dynemol/input/RET.tar) file, it was possible to get the following averages:
-
 ```bash
 # first batch
 7.44735
@@ -51,48 +69,14 @@ Using the inputs provided in the [RET.tar](../dynemol/input/RET.tar) file, it wa
 7.87155
 7.36505
 ```
+Note that these values were obtained from the code _as is_. Which means, there were no removals of any OMP directives.
 
-These numbers will be used as a basis for the tests using the `RET.tar` input.
 
 ##### OMP Directives
 
-The following tests show the performance impacts in executing the code without some OMP directives:
+The following results are the times obtained after running the program without any OMP directives. All removed using the above explained command.
 
-Removed from Ehrenfest function in [Ehrenfest.f](../dynemol/Ehrenfest.f):
-```bash
-# first batch
-6.90436
-6.88848
-6.98351
-# second batch
-6.73591
-6.51842
-6.64565
-```
 
-Removed from Pulay overlap subroutine in [overlap_D.f](../dynemol/overlap_D.f):
-```bash
-# first batch
-12.90012
-13.01070
-12.97515
-# second batch
-12.29959
-13.09789
-12.51462
-```
-
-Removed from both, Pulay overlap subroutine and Ehrenfest function:
-```bash
-# first batch
-7.97534
-8.04893
-8.00157
-# second batch
-7.92181
-7.93090
-8.02755
-```
 
 ## Conclusion
 
