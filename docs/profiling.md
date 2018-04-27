@@ -33,7 +33,7 @@ See `gprof`'s man [page](https://linux.die.net/man/1/gprof) for more info.
 
 ### Results
 
-Profile created by executing the code with all the OpenMP directives removed. See (#limitations)[#limitations] for more info.
+Profile created by executing the code with all the OpenMP directives removed. See limitations section below for more info.
 
 ```bash
 $ gprof a -b
@@ -58,7 +58,7 @@ With the above output, it is plain that two procedures take most of the running 
 - `overlap_builder_mp_pulay_overlap_`
   - Located in the `Overlap_Builder` module, in [overlap_D.f](../dynemol/overlap_D.f);
 - `multipole_routines_m_mp_multipoles2c_`
-  - Located in the `Multipole_Routines_m` module, in [multip_routines.f](./dynemol/multip_routines.f).
+  - Located in the `Multipole_Routines` module, in [multip_routines.f](./dynemol/multip_routines.f).
 
 
 ### Limitations

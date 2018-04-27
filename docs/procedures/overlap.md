@@ -72,7 +72,7 @@ Quick note 2: It is very likely that here is the best place for improvement.
 I think it will be an easier way to grasp the scope of this subroutine by listing all the main points of it:
 
 - 6-deep do loop;
-  - Outer do loop with `OMP parallel do` directive with **29** private variables;
+  - Outer do loop with `OMP parallel do` directive with **29** private variables. Now removed for testing.
 - `goto`s;
 - Factorials calculation using do loops, 3 deep;
 - Calls to some other procedures:
