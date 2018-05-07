@@ -2,7 +2,7 @@
 .SUFFIXES: .f .F .for .cpp .F90 .cu .o
 
 # Fortran compiler:
-FC=ifort
+FC = ifort
 
 # Basic options:
 # -fpp:		Runs Fortran's preprocessor before compilation
@@ -206,18 +206,12 @@ a: $(SOURCE1) $(SOURCE2) $(SOURCE_GPU) $(SOURCE_CUDA)
 # Removes all the parallel flags from compiling options
 serial: F_PARALLEL =
 serial: C_PARALLEL =
-serial:
-	$(MAKE) clean
-	$(MAKE) ret
-	$(MAKE) a
+serial: debug clean ret a
 
 # Recompiles everything with debug flag
-debug: FC +=  -g
 debug: CXX +=  -g
-debug:
-	$(MAKE) clean
-	$(MAKE) ret
-	$(MAKE) a
+debug: FC +=  -g
+debug: clean ret a
 
 
 .f.o:
