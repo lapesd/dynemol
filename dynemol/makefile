@@ -203,13 +203,21 @@ a: $(SOURCE1) $(SOURCE2) $(SOURCE_GPU) $(SOURCE_CUDA)
 	-rm -f *.log
 
 
+# Removes all the parallel flags from compiling options
 serial: F_PARALLEL =
 serial: C_PARALLEL =
-serial: a
+serial:
+	$(MAKE) clean
+	$(MAKE) ret
+	$(MAKE) a
 
-debug: FC += ' -g'
-debug: CXX += ' -g'
-debug: a
+# Recompiles everything with debug flag
+debug: FC +=  -g
+debug: CXX +=  -g
+debug:
+	$(MAKE) clean
+	$(MAKE) ret
+	$(MAKE) a
 
 
 .f.o:
@@ -231,6 +239,7 @@ debug: a
 clean:
 	-rm -fv a *.o *.mod && touch *.f
 
+# Needs to check if this can be done with the -gen-deps flag
 depend:
 	@echo -en "Searching module dependencies..."
 	@chmod +x ./makedepend.bsh
