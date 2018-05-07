@@ -242,11 +242,11 @@ depend:
 
 
 ret:
-	cd inputs/ && \
+	cd ../inputs && \
 	make ret
 
 prc:
-	cd inputs/ && \
+	cd ../inputs && \
 	make prc
 
 ## Dependency list:
