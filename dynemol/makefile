@@ -1,16 +1,24 @@
 
 .SUFFIXES: .f .F .for .cpp .F90 .cu .o
 
-# BASIC OPTIONS
-# xHost: Generate code for the highest instruction set on the host processor
-# ip: Enables interprocderual optimizations
-# fpp: Runs Fortran's preprocessor before compilation
-FC=ifort -xHost -ip -fpp
+# Fortran compiler:
+FC = ifort
 
-# FORTRAN OPITONS
-# free: Allows the input files to be of the free format type instead of the
-# 		format specific fortran styles.
-FREE = -free
+# Basic options:
+# -fpp:		Runs Fortran's preprocessor before compilation
+# -align:	Prevents padding bytes in arrays and structs
+F_BASIC = -fpp -align
+
+# Optimization options:
+# -xHost:	Generate code for the highest instruction set on the host processor
+# -ip:		Enables interprocderual optimizations
+F_OPTIMIZE = -xHost -ip
+
+# Parallel options:
+# -qopenmp:		Enables generation of multi threaded code based on OpenMP directives
+# -parallel:	Tells compiler to auto generate multi threaded code where it sees
+# 				fit
+F_PARALLEL = -qopenmp -parallel
 
 # DEBUG OPTIONS
 # use this flag for debugging and coding up
@@ -21,33 +29,37 @@ FREE = -free
 # warn all: Enables all warning messages
 SAFE = #-check all -traceback -fstack-protector -assume protect_parens -implicitnone -warn all
 
-# FLAGS OPTIONS
-# align array64byte: Aligns arrays at specified boundaries. Whatever that
-#					 means...
-FFLAGS1 = -O3 -align #array64byte
 
-# align: Prevents padding bytes in arrays and structs
-# qopenmp: Enables generation of multi threaded code based on OpenMP directives
-# parallel: Tells compiler to auto generate multi threaded code where it sees
-# 			fit
-# static: Prevents linking with shared libraries
-FFLAGS2 = -O2 -align -qopenmp -parallel $(FREE) $(SAFE) -static #array64byte
+# C/C++ Compiler:
+CXX = icpc
 
-# C/C++ COMPILER OPTIONS
-# std=c++11: C++ 11 standard
-CXX = icpc -std=c++11
+# Basic options:
+# std=c++11:	C++ 11 standard
+# -align:		Prevents padding bytes in arrays and structs
+C_BASIC = -std=c++11 -align
 
-# align: Prevents padding bytes in arrays and structs
-# xHost: Generate code for the highest instruction set on the host processor
-# ip: Enables interprocderual optimizations
-# qopenmp: Enables generation of multi threaded code based on OpenMP directives
-# fno-exceptions: Disables the generation of exceptions table generation. When
-# 				  used, code will be smaller but try blocks will throw an error
-# restrict: Assures that an object is only acessed by a single pointer in it's
-# 			scope
-CFLAGS = -O2 -align -xHost -ip -qopenmp -fno-exceptions -restrict
+# Optimization options:
+# -xHost:	Generate code for the highest instruction set on the host processor
+# -ip:		Enables interprocderual optimizations
+C_OPTIMIZE = -xHost -ip
 
-# MKLROOT  = If MKLROOT is not defined in your environment, edit and uncomment this line
+# Safe options:
+# -fno-exceptions:	Disables the generation of exceptions table generation. When
+# 					used, code will be smaller but try blocks will throw an
+# 					error
+# -restrict: 		Assures that an object is only accessed by a single pointer
+# 					in it's scope
+C_SAFE = -fno-exceptions -restrict
+
+# Parallel options:
+# -align:	Prevents padding bytes in arrays and structs
+# -qopenmp:	Enables generation of multi threaded code based on OpenMP directives
+C_PARALLEL = -qopenmp -fno-exceptions
+
+# Libraries:
+# - If MKLROOT is not defined in your environment, edit and uncomment the line
+# 	below
+# MKLROOT = MKL location
 LIB_BLAS   = -lmkl_blas95_lp64
 LIB_LAPACK = -lmkl_lapack95_lp64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core
 LIB_OMP    = -liomp5 -lpthread
@@ -187,29 +199,41 @@ endif
 
 a: $(SOURCE1) $(SOURCE2) $(SOURCE_GPU) $(SOURCE_CUDA)
 	rm -f a
-	$(FC) $(INCS) -o a $(SOURCE1) $(SOURCE2) $(SOURCE_GPU) $(SOURCE_CUDA) $(LIB)
+	$(FC) $(INCS_MKL) -o a $(SOURCE1) $(SOURCE2) $(SOURCE_GPU) $(SOURCE_CUDA) $(LIB)
 	-rm -f *.log
 
 
-.F.o:
-	$(FC) $(FFLAGS1) $(INCS) -c $<
+# Removes all the parallel flags from compiling options
+serial: F_PARALLEL =
+serial: C_PARALLEL =
+serial: debug clean ret a
+
+# Recompiles everything with debug flag
+debug: CXX +=  -g
+debug: FC +=  -g
+debug: clean ret a
+
 
 .f.o:
-	$(FC) $(FFLAGS2) $(INCS) $(GPU_DEFS) -c $<
+	$(FC) -O2 -free -static $(F_BASIC) $(F_OPTIMIZE) $(F_PARALLEL) $(INCS_MKL) $(GPU_DEFS) -c $<
+
+.F.o:
+	$(FC) -O3 $(F_BASIC) $(F_OPTIMIZE) $(INCS_MKL) -c $<
 
 .F90.o:
-	$(FC) $(FFLAGS1) $(INCS) $(GPU_DEFS) -c $<
+	$(FC) -O3 $(F_BASIC) $(F_OPTIMIZE) $(INCS_MKL) $(GPU_DEFS) -c $<
 
 .cpp.o:
-	$(CXX) $(CFLAGS) $(INCS_GPU) $(GPU_DEFS) -c $<
+	$(CXX) $(C_BASIC) $(C_OPTIMIZE) $(C_SAFE) $(C_PARALLEL) $(INCS_GPU) $(GPU_DEFS) -c $<
 
 .cu.o:
 	$(NVCC) $(NVCCFLAGS) $(INCS_GPU) $(GPU_DEFS) -c $<
 
 
 clean:
-	-rm -f a *.o *.mod; touch *.f
+	-rm -fv a *.o *.mod && touch *.f
 
+# Needs to check if this can be done with the -gen-deps flag
 depend:
 	@echo -en "Searching module dependencies..."
 	@chmod +x ./makedepend.bsh
@@ -218,11 +242,11 @@ depend:
 
 
 ret:
-	cd inputs/ && \
+	cd ../inputs && \
 	make ret
 
 prc:
-	cd inputs/ && \
+	cd ../inputs && \
 	make prc
 
 ## Dependency list:
