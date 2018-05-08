@@ -45,8 +45,14 @@ Effective Physical Core Utilization: 6.3% (1.253 out of 20)
 ```
 Here, the focus is on the CPU-bound portion of the summary.
 
-First of all, `vmlinux` will be discussed later in this file. When the program is executed with all the original parallelization on some red flags are raised. After some research, it was discovered that the `__kmp_release_template` call is an OpenMP function used to release waiting threads, [link](https://github.com/llvm-mirror/openmp/blob/a838d8e95f40e21eabd704ec8e83a40405bc2c4c/runtime/src/kmp_wait_release.h#L435). The time spent here is even bigger than the time performing the math involved in this software.
+First of all, `vmlinux` will be discussed later in this file.
 
-The `__intel_avx_rep_memset` function is probably some type of custom made `malloc` or `memset` function made by Intel. It is said 'probably' because the only search results about it on the internet are errors related to the loading of the library which includes it.
+Event though this is the parallel version of the software, most of it is ran serially. As it is possible to see in the `Serial time` values. ~70% of the runtime is executed serially. A valid conclusion is that, even though this version is already pretty parallelized, around 60 OpenMP directives scattered throughout the code, there is, still, lots of room for improvement.
 
-Oddly enough, the serial version has more effective physical core utilization than the parallel one. The effective logical core utilization is also bigger in the serial version.
+When the program is executed with all the original parallelization on, some red flags are raised. After some research, it was discovered that the `__kmp_release_template` call is an OpenMP function used to release waiting threads, [link](https://github.com/llvm-mirror/openmp/blob/a838d8e95f40e21eabd704ec8e83a40405bc2c4c/runtime/src/kmp_wait_release.h#L435). The time spent here is even bigger than the time performing the math involved in this software. Leading to the conclusion that there are some deadlock/race conditions that take too much time to resolve.
+
+The `__intel_avx_rep_memset` function is probably some call to set the memory of the Advanced Vector Extensions (AVX) normally included in modern CPU architectures. This function is probably well used in Intel's Math Kernel Library.
+
+Oddly enough, the serial version has more effective physical, and logical, core utilization than the parallel one.
+
+The rest of the calls are calls to the, well-known, `pulay_overlap` and `solap` procedures.
