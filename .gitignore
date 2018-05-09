@@ -1,5 +1,9 @@
 Created by https://www.gitignore.io/api/fortran
 
+# Ignore the +2Gb of profiling info in the folder
+profile
+dynemol/tmp_data
+
 ### Fortran ###
 # Prerequisites
 *.d
