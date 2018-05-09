@@ -2,7 +2,10 @@
 
 Description of the profiling of the parallel version of the software.
 
-## Compiling
+
+## VTune
+
+### Compiling
 
 By parallel version, it is meant the version of the code __as is__.
 
@@ -12,7 +15,7 @@ $ make debug  # adds -g flag to compiling process
 ```
 
 
-## Profiling
+### Profiling
 
 The program was profiled using Intel's VTune. Using the command line utility.
 ```bash
@@ -21,7 +24,7 @@ $ amplxe-cl -collect hpc-performance -- ./a
 It generated **1.3GB** of data.
 
 
-## Reporting
+### Reporting
 
 ```bash
 Effective Physical Core Utilization: 6.3% (1.253 out of 20)
@@ -56,3 +59,32 @@ The `__intel_avx_rep_memset` function is probably some call to set the memory of
 Oddly enough, the serial version has more effective physical, and logical, core utilization than the parallel one.
 
 The rest of the calls are calls to the, well-known, `pulay_overlap` and `solap` procedures.
+
+
+## Perf
+
+Command:
+```bash
+$ perf stat -d ./a
+```
+
+```bash
+ Performance counter stats for './a':
+
+    1439984.391271      task-clock (msec)         #   37.476 CPUs utilized
+         1,440,501      context-switches          #    0.001 M/sec
+               703      cpu-migrations            #    0.000 K/sec
+            28,235      page-faults               #    0.020 K/sec
+ 3,725,927,580,450      cycles                    #    2.587 GHz                      (50.01%)
+   <not supported>      stalled-cycles-frontend
+   <not supported>      stalled-cycles-backend
+ 2,986,180,819,374      instructions              #    0.80  insns per cycle          (62.50%)
+   853,669,924,625      branches                  #  592.833 M/sec                    (62.50%)
+     1,136,692,527      branch-misses             #    0.13% of all branches          (62.50%)
+ 1,060,749,061,906      L1-dcache-loads           #  736.639 M/sec                    (62.50%)
+     4,225,441,922      L1-dcache-load-misses     #    0.40% of all L1-dcache hits    (62.50%)
+       354,827,936      LLC-loads                 #    0.246 M/sec                    (50.00%)
+        43,666,588      LLC-load-misses           #   12.31% of all LL-cache hits     (50.00%)
+
+      38.424270518 seconds time elapsed
+```

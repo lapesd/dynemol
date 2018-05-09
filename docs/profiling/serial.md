@@ -2,7 +2,10 @@
 
 Description of the profiling of the serial version of the software.
 
-## Compiling
+
+## VTune
+
+### Compiling
 
 By serial version, it is meant the version of the code without any of the OpenMP directives. All removed with:
 ```bash
@@ -14,7 +17,7 @@ $ make serial  # removes parallel flags and adds debug
 ```
 
 
-## Profiling
+### Profiling
 
 The program was profiled using Intel's VTune. Using the command line utility.
 ```bash
@@ -23,7 +26,7 @@ $ amplxe-cl -collect hpc-performance -- ./a
 It generated **997MB** of data.
 
 
-## Reporting
+### Reporting
 
 Again, using the command line utility:
 ```bash
@@ -57,6 +60,34 @@ There is lots of important information here. First of all, as this version is th
 
 The most important part of this summary is the hotspots analysis table. It shows how much time the processor spent on each function. As already noted in the procedures analysis, see [overlap](../procedures/overlap.md) for more info, the most time consuming procedure is the pulay_overlap one. solap is actually called from within pulay_overlap.
 
+
+## Perf
+
+Command:
+```bash
+$ perf stat -d ./a
+```
+
+```bash
+ Performance counter stats for './a':
+
+     448195.190178      task-clock (msec)         #    7.974 CPUs utilized
+           270,407      context-switches          #    0.603 K/sec
+               261      cpu-migrations            #    0.001 K/sec
+            25,391      page-faults               #    0.057 K/sec
+ 1,358,407,730,487      cycles                    #    3.031 GHz                      (50.04%)
+   <not supported>      stalled-cycles-frontend
+   <not supported>      stalled-cycles-backend
+ 1,401,474,701,367      instructions              #    1.03  insns per cycle          (62.53%)
+   371,689,145,941      branches                  #  829.302 M/sec                    (62.51%)
+       494,990,952      branch-misses             #    0.13% of all branches          (62.49%)
+   483,984,914,427      L1-dcache-loads           # 1079.853 M/sec                    (62.48%)
+     4,586,089,502      L1-dcache-load-misses     #    0.95% of all L1-dcache hits    (62.48%)
+     1,230,345,503      LLC-loads                 #    2.745 M/sec                    (50.00%)
+       356,635,377      LLC-load-misses           #   28.99% of all LL-cache hits     (50.02%)
+
+      56.204127957 seconds time elapsed
+```
 ---
 
 All of this was to have the basis performance to which compare the future obtained results of the parallelizing approaches.
