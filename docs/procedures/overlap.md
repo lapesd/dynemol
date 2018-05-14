@@ -30,7 +30,7 @@ Describes many values to be used in the calculations. It is a simpler custom typ
 ```f90
 real*8, allocatable, intent(inout) :: S_matrix(:,:)
 ```
-Matrix of values to perform some operation, defined by the `purpose` parameter.
+Matrix of values to perform some operation, defined by the `purpose` parameter. After some tests, using `gdb`, it was discovered that, for the inputs provided, this matrix can assume size of 225 x 225.
 
 
 ### purpose
@@ -63,6 +63,8 @@ Matrix after applying the defined operation.
 
 ## Code
 
+After some scrutiny, this procedure could be changed for a function, as it seems it alters some values but the main point is the resulting `S_matrix`, which has it's value set to zero at the start of the procedure.
+
 Differently than the [Ehrenfest](ehrenfest.md) documentation, there won't be a line-by-line explanation here. We are only interested in the `Pulay_overlap` subroutine.
 
 Quick note: It is going to be a wild-ride...
@@ -88,9 +90,9 @@ I think it will be an easier way to grasp the scope of this subroutine by listin
 
 ### Complexity
 
-This is probably the bottleneck of this program. As this function is called on every iteration of the main loop, for every atom.
+This is probably the bottleneck of this program. As this function is called on every iteration of the main loop, for every atom. Later tests with profiling software confirmed the above assumption. See [profiling](../profiling) for more info.
 
-Assuming each loop iterates from 1 to N. At some point, we have a 10 deep loop. Possibly resulting in a N^10 complexity, which is impressive.
+Assuming each loop iterates from 1 to N. At some point, we have a 10 deep loop. Possibly resulting in a N^10 complexity, which is quite impressive.
 
 
 ### Options
@@ -106,5 +108,4 @@ There are some approaches to have a significant performance boost in this sectio
   - What is the input/output? Which implies the understanding of the first item, which already is a slow moving approach;
 - Find better uses of the `OMP` directives:
   - It requires, to some degree, a basic understanding of the inputs of the function, but not as deep as the first and seconds items of this list suggests;
-- Use CUDA:
-  - Needs some studying.
+- Use CUDA (Needs studying).

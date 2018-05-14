@@ -1,64 +1,127 @@
 # Serial
 
-Description of the profiling of the serial version of the software.
+Description of the profiling process for the serial version.
+
+
+## Motivation
+
+- Get base statistics to calculate improvements from.
+- Know where to focus work.
+  - Know which functions are the most time/processing power consuming ones.
 
 
 ## VTune
 
 ### Compiling
 
-By serial version, it is meant the version of the code without any of the OpenMP directives. All removed with:
+Compiled with:
 ```bash
-$ sed -i.bak 's|\!\$\s*OMP.*||gI' *.f* *.F*
-```
-And compiled without any of the parallel flags. `-qopenmp` and `-parallel`. And with the debug flag `-g` on, for profiling reasons.
-```bash
-$ make serial  # removes parallel flags and adds debug
+$ make serial 	# removes parallel flags and adds debug
 ```
 
 
-### Profiling
+### Collecting
 
-The program was profiled using Intel's VTune. Using the command line utility.
+This step cant take a long time to complete. It took ~30 minutes to execute completely on a reasonably powerful machine. Go grab a coffee...
+
+Ran with:
 ```bash
-$ amplxe-cl -collect hpc-performance -- ./a
+$ amplxe-cl -collect advanced-hotspots \ 		# specify which data to collect
+  -data-limit=30000 \					# sets data size limit
+  -verbose \
+  -r ../profile/serial \				# where to save collected data
+  -knob collection-detail=stack-and-callcount  -- \	# collects more info
+  ./a 							# program to run
 ```
-It generated **997MB** of data.
 
+Brief explanation:
+
+- `-collect advanced-hotspots` allows the more advanced configurations to be set to the profiling software. Basically a `-collect hotspots` on steroids.
+- `-data-limit=30000` sets a higher limit to the size of collected data. The default, 500Mb, was too small. This size assure that **all** the execution was recorded.
+- `-knob collection-detail=stack-and-callcount` adds this option to the collection process. According to Intel's [reference](https://software.intel.com/en-us/vtune-amplifier-help-knob):
+> Extend the stack-and-callcount collection with an analysis of loop trip count statistically estimated using the hardware events. This value is used for advanced-hotspots only.
+
+This configuration generated **13Gb** of data.
 
 ### Reporting
 
-Again, using the command line utility:
+
+#### Hotspots
+
+Report generated with:
 ```bash
-$ amplxe-cl -report summary -report-knob show-issues=false
+$ amplxe-cl -report hotspots \
+  -r ../profile/serial/ \
+  -group-by function \
+  -column 'CPU Time:Self,CPU Time:Effective Time:Self,Estimated Call Count:Self,Source File'
 ```
 
-The (important) output was:
+##### Conclusions:
+
+The most time consuming user functions are, in order:
+
+| function 			| time 		| file |
+| ----------------- | --------: | ---- |
+| `solap` 			| 8.215s 	| [overlap_D.f](../../dynemol/overlap_D.f) |
+| `solap` 			| 6.525s 	| [multip_routines.f](../../dynemol/multip_routines.f) |
+| `pulay_overlap` 	| 5.770s 	| [overlap_D.f](../../dynemol/overlap_D.f) |
+| `solap` 			| 2.922s 	| [overlap_D.f](../../dynemol/overlap_D.f) |
+| `multipoles2c` 	| 2.438s 	| [multip_routines.f](../../dynemol/multip_routines.f) |
+
+All the times displayed above are [CPU Effective](https://software.intel.com/en-us/vtune-amplifier-help-effective-time) times.
+
+-----
+
+#### Hardware events
+
+Report generated with:
 ```bash
-Effective Physical Core Utilization: 11.9% (2.388 out of 20)
-    Effective Logical Core Utilization: 6.0% (2.406 out of 40)
-    Serial Time (outside parallel regions): 32.869s (98.3%)
-
-        Top Serial Hotspots (outside parallel regions)
-        Function                             Module  Serial CPU Time
-        -----------------------------------  ------  ---------------
-        solap                                a                3.747s
-        [Loop at line 411 in pulay_overlap]  a                2.851s
-        [Loop at line 709 in solap]          a                1.512s
-        solap                                a                1.500s
-        [Loop at line 736 in solap]          a                1.316s
-        [Others]                             N/A             21.163s
-    Parallel Region Time: 0.580s (1.7%)
-        Estimated Ideal Time: 0.356s (1.1%)
-        OpenMP Potential Gain: 0.224s (0.7%)
-...
-# more info down here
+$ amplxe-cl -report hw-events /
+  -r ../profile/serial/ /
+  -column 'Hardware Event Count:CPU_CLK_UNHALTED.THREAD:Self,Hardware Event Count:CALL_COUNT:Self,Context Switch Time:Self,Source File'
 ```
-Here, the focus is on the CPU-bound portion of the summary.
 
-There is lots of important information here. First of all, as this version is the serial one, the physical core utilization and the following ones are very low. As expected. The use of more than one, not expected, core is because of `blas` and `lapack` math libraries included in Intel's Parallel Studio. It spawn threads to parallelize some matrix operations and they are used in this program. At last, the serial time was almost all of the running time (~98%), as expected.
+##### Conclusions
 
-The most important part of this summary is the hotspots analysis table. It shows how much time the processor spent on each function. As already noted in the procedures analysis, see [overlap](../procedures/overlap.md) for more info, the most time consuming procedure is the pulay_overlap one. solap is actually called from within pulay_overlap.
+Most cycles per function, in order:
+
+| function 			| cycles 			| file |
+| ----------------- | ----------------: | ---- |
+| `solap` 			| 21.537.581.687 	| [overlap_D.f](../../dynemol/overlap_D.f) |
+| `solap` 			| 16.314.692.994 	| [multip_routines.f](../../dynemol/multip_routines.f) |
+| `pulay_overlap` 	| 14.831.939.757 	| [overlap_D.f](../../dynemol/overlap_D.f) |
+| `solap` 			| 7.514.002.370 	| [overlap_D.f](../../dynemol/overlap_D.f) |
+| `multipoles2c` 	| 6.790.169.538 	| [multip_routines.f](../../dynemol/multip_routines.f) |
+
+This result just confirms the one in the previous item.
+
+-----
+
+#### Callstacks
+
+Report generated with:
+```bash
+$ amplxe-cl -report callstacks \
+  -r ../profile/serial/ \
+  -group-by function \
+  -column 'CPI Rate'
+```
+
+##### Conclusions
+
+`-report callstacks` only allows one item in the `column` argument. So, it is not too clear which function is which here.
+
+Functions and its CPI (cycles per instruction):
+
+| function 			| CPI rate |
+| ----------------- | -------: |
+| `solap` 			| 2.207	   |
+| `pulay_overlap` 	| 1.611	   |
+| `solap` 			| 1.324	   |
+| `solap` 			| 1.141	   |
+| `multipoles2c` 	| 1.067	   |
+
+The lower the CPI rate value, lower the cache hit performance of the function (usually).
 
 
 ## Perf
@@ -68,7 +131,8 @@ Command:
 $ perf stat -d ./a
 ```
 
-```bash
+Output:
+```
  Performance counter stats for './a':
 
      448195.190178      task-clock (msec)         #    7.974 CPUs utilized
@@ -88,6 +152,3 @@ $ perf stat -d ./a
 
       56.204127957 seconds time elapsed
 ```
----
-
-All of this was to have the basis performance to which compare the future obtained results of the parallelizing approaches.

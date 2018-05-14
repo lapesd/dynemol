@@ -85,7 +85,7 @@ Disable implicit declarations, as always, and declare everything.
 ```f90
 verbose    = .false.
 ```
-Variable no used inside this function.
+Variable not used inside this function.
 
 
 ```f90
