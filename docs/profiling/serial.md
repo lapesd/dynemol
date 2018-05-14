@@ -9,9 +9,6 @@ Description of the profiling process for the serial version.
 - Know where to focus work.
   - Know which functions are the most time/processing power consuming ones.
 
-
-## VTune
-
 ### Compiling
 
 Compiled with:
@@ -19,6 +16,8 @@ Compiled with:
 $ make serial 	# removes parallel flags and adds debug
 ```
 
+
+## VTune
 
 ### Collecting
 
@@ -56,19 +55,22 @@ $ amplxe-cl -report hotspots \
   -column 'CPU Time:Self,CPU Time:Effective Time:Self,Estimated Call Count:Self,Source File'
 ```
 
+Output:
+
+| function 			| time 		| file 													|
+| ----------------- | --------: | ----------------------------------------------------- |
+| `solap` 			| 8.215s 	| [overlap_D.f](../../dynemol/overlap_D.f) 				|
+| `solap` 			| 6.525s 	| [multip_routines.f](../../dynemol/multip_routines.f) 	|
+| `pulay_overlap` 	| 5.770s 	| [overlap_D.f](../../dynemol/overlap_D.f) 				|
+| `solap` 			| 2.922s 	| [overlap_D.f](../../dynemol/overlap_D.f) 				|
+| `multipoles2c` 	| 2.438s 	| [multip_routines.f](../../dynemol/multip_routines.f) 	|
+
+
 ##### Conclusions:
 
-The most time consuming user functions are, in order:
-
-| function 			| time 		| file |
-| ----------------- | --------: | ---- |
-| `solap` 			| 8.215s 	| [overlap_D.f](../../dynemol/overlap_D.f) |
-| `solap` 			| 6.525s 	| [multip_routines.f](../../dynemol/multip_routines.f) |
-| `pulay_overlap` 	| 5.770s 	| [overlap_D.f](../../dynemol/overlap_D.f) |
-| `solap` 			| 2.922s 	| [overlap_D.f](../../dynemol/overlap_D.f) |
-| `multipoles2c` 	| 2.438s 	| [multip_routines.f](../../dynemol/multip_routines.f) |
-
 All the times displayed above are [CPU Effective](https://software.intel.com/en-us/vtune-amplifier-help-effective-time) times.
+
+- Need to focus on the above functions for better performance.
 
 -----
 
@@ -76,24 +78,25 @@ All the times displayed above are [CPU Effective](https://software.intel.com/en-
 
 Report generated with:
 ```bash
-$ amplxe-cl -report hw-events /
-  -r ../profile/serial/ /
+$ amplxe-cl -report hw-events \
+  -r ../profile/serial/ \
   -column 'Hardware Event Count:CPU_CLK_UNHALTED.THREAD:Self,Hardware Event Count:CALL_COUNT:Self,Context Switch Time:Self,Source File'
 ```
 
+Output:
+
+| function 			| cycles 			| file 													|
+| ----------------- | ----------------: | ----------------------------------------------------- |
+| `solap` 			| 21.537.581.687 	| [overlap_D.f](../../dynemol/overlap_D.f) 				|
+| `solap` 			| 16.314.692.994 	| [multip_routines.f](../../dynemol/multip_routines.f) 	|
+| `pulay_overlap` 	| 14.831.939.757 	| [overlap_D.f](../../dynemol/overlap_D.f) 				|
+| `solap` 			| 7.514.002.370 	| [overlap_D.f](../../dynemol/overlap_D.f) 				|
+| `multipoles2c` 	| 6.790.169.538 	| [multip_routines.f](../../dynemol/multip_routines.f) 	|
+
+
 ##### Conclusions
 
-Most cycles per function, in order:
-
-| function 			| cycles 			| file |
-| ----------------- | ----------------: | ---- |
-| `solap` 			| 21.537.581.687 	| [overlap_D.f](../../dynemol/overlap_D.f) |
-| `solap` 			| 16.314.692.994 	| [multip_routines.f](../../dynemol/multip_routines.f) |
-| `pulay_overlap` 	| 14.831.939.757 	| [overlap_D.f](../../dynemol/overlap_D.f) |
-| `solap` 			| 7.514.002.370 	| [overlap_D.f](../../dynemol/overlap_D.f) |
-| `multipoles2c` 	| 6.790.169.538 	| [multip_routines.f](../../dynemol/multip_routines.f) |
-
-This result just confirms the one in the previous item.
+- This result just confirms the one in the previous item.
 
 -----
 
@@ -107,11 +110,7 @@ $ amplxe-cl -report callstacks \
   -column 'CPI Rate'
 ```
 
-##### Conclusions
-
-`-report callstacks` only allows one item in the `column` argument. So, it is not too clear which function is which here.
-
-Functions and its CPI (cycles per instruction):
+Output:
 
 | function 			| CPI rate |
 | ----------------- | -------: |
@@ -121,7 +120,12 @@ Functions and its CPI (cycles per instruction):
 | `solap` 			| 1.141	   |
 | `multipoles2c` 	| 1.067	   |
 
-The lower the CPI rate value, lower the cache hit performance of the function (usually).
+
+##### Conclusions
+
+- `-report callstacks` only allows one item in the `column` argument. So, it is not too clear which function is which here.
+- Functions and its CPI (cycles per instruction):
+- The lower the CPI rate value, lower the cache hit performance of the function (usually).
 
 
 ## Perf
