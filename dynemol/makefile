@@ -12,7 +12,7 @@ F_BASIC = -fpp -align
 # Optimization options:
 # -xHost:	Generate code for the highest instruction set on the host processor
 # -ip:		Enables interprocderual optimizations
-F_OPTIMIZE = -xHost -ip
+F_OPTIMIZE = -xHost -ip -O2
 
 # Parallel options:
 # -qopenmp:		Enables generation of multi threaded code based on OpenMP directives
@@ -206,22 +206,24 @@ a: $(SOURCE1) $(SOURCE2) $(SOURCE_GPU) $(SOURCE_CUDA)
 # Removes all the parallel flags from compiling options
 serial: F_PARALLEL =
 serial: C_PARALLEL =
-serial: debug clean ret a
+serial: debug
 
 # Recompiles everything with debug flag
 debug: CXX +=  -g
 debug: FC +=  -g
 debug: clean ret a
 
+zero: F_OPTIMIZE = -xHost -ip
+zero: debug
 
 .f.o:
-	$(FC) -O2 -free -static $(F_BASIC) $(F_OPTIMIZE) $(F_PARALLEL) $(INCS_MKL) $(GPU_DEFS) -c $<
+	$(FC) -free -static $(F_BASIC) $(F_OPTIMIZE) $(F_PARALLEL) $(INCS_MKL) $(GPU_DEFS) -c $<
 
 .F.o:
-	$(FC) -O3 $(F_BASIC) $(F_OPTIMIZE) $(INCS_MKL) -c $<
+	$(FC) $(F_BASIC) $(F_OPTIMIZE) $(INCS_MKL) -c $<
 
 .F90.o:
-	$(FC) -O3 $(F_BASIC) $(F_OPTIMIZE) $(INCS_MKL) $(GPU_DEFS) -c $<
+	$(FC) $(F_BASIC) $(F_OPTIMIZE) $(INCS_MKL) $(GPU_DEFS) -c $<
 
 .cpp.o:
 	$(CXX) $(C_BASIC) $(C_OPTIMIZE) $(C_SAFE) $(C_PARALLEL) $(INCS_GPU) $(GPU_DEFS) -c $<
