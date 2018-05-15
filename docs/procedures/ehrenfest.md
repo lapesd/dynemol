@@ -30,7 +30,7 @@ Describes many values to be used in the calculations. It is a simpler custom typ
 ```f90
 integer, intent(in) :: site
 ```
-Seems to be the index of the atom which we want to calculate the value of.
+Index of the atom which we want to calculate the force between it and the rest of the system.
 
 
 ## Return
@@ -43,12 +43,9 @@ real*8 :: Force(3)
 ```
 
 
-## Code
+### Line-by-line
 
 In this section there will be the _dissecting_ of the Ehrenfest function, line-by-line. The function is located [here](../dynemol/Ehrenfest.f).
-
-
-### Line-by-line
 
 
 ```f90
@@ -97,7 +94,7 @@ Gets the size of the `basis` parameter. After some unfruitful research, I made s
 ```f90
 grad_S     = D_zero
 ```
-`grad_S` is an allocatable, 2D, array of real numbers. And `D_zero` is a constant of value ZERO (yes...).
+`grad_S` is an allocatable, 2D, array of real numbers. And `D_zero` is a constant of value (double) 0.
 
 After more investigation, and testing, I have discovered it is possible to _assign_ a value to array. This will make all values become that value. Example: `arr = 5 => [5, 5, 5, ...]`. So, the line of the above code makes all values of `grad_S` become zero.
 

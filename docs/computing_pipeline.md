@@ -40,8 +40,12 @@ Because of the iteration is limited between pair of atoms, the computation will 
 
 ### (3)
 
-The Ehrenfest function itself. Better explained [here](../procedures/ehrenfest.md).
+The Ehrenfest function itself. Better explained [here](../procedures/ehrenfest.md). This loop ALWAYS runs 3 times.
 
 ### (4)
 
 Two calls to the Pulay Overlap function. These two calls are independent and can be parallelized.
+
+### (5)
+
+For each pair, usually a number between 0 and the total of atoms in the system.

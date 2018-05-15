@@ -213,17 +213,18 @@ debug: CXX +=  -g
 debug: FC +=  -g
 debug: clean ret a
 
-zero: F_OPTIMIZE = -xHost -ip
+# Help debugging
+zero: F_OPTIMIZE = -xHost -ip -O0
 zero: debug
 
 .f.o:
 	$(FC) -free -static $(F_BASIC) $(F_OPTIMIZE) $(F_PARALLEL) $(INCS_MKL) $(GPU_DEFS) -c $<
 
 .F.o:
-	$(FC) $(F_BASIC) $(F_OPTIMIZE) $(INCS_MKL) -c $<
+	$(FC) -O3 $(F_BASIC) $(F_OPTIMIZE) $(INCS_MKL) -c $<
 
 .F90.o:
-	$(FC) $(F_BASIC) $(F_OPTIMIZE) $(INCS_MKL) $(GPU_DEFS) -c $<
+	$(FC) -O3 $(F_BASIC) $(F_OPTIMIZE) $(INCS_MKL) $(GPU_DEFS) -c $<
 
 .cpp.o:
 	$(CXX) $(C_BASIC) $(C_OPTIMIZE) $(C_SAFE) $(C_PARALLEL) $(INCS_GPU) $(GPU_DEFS) -c $<

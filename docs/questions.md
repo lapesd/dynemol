@@ -6,17 +6,20 @@ File created to store questions about the intrinsics of the software.
 ## Ehrenfest
 
 1. Are the calls to this procedure independent?
+- **Answer**: Yes. They are. And they are already programmed in a way that each iteration takes less time than the other one.
   1. The `system` parameter is the only one that has `intent(inout)`. This means it can be changed. Does these possible changes have any effect in subsequent calls? In other words, does the order in which this procedure is called alter the results?
 2. Are the calls to `Overlap_Matrix` subroutine, which calls `Pulay_Overlap` independent?
   1. Does the values passed to each one of the calls are changed inside the procedure?
   - **Answer**: After analysis, the only ones that change are `S_fwd` and `S_bck`. The rest of the arguments are all `intent(in)`. So, there shouldn't be any problems.
   - **Options**: So, this calls appear to be independent of each other. They could be parallelized.
       - This section could be separated into 2 threads, each one would calculate each call to `Overlap_Matrix` independently and in parallel (`workshare` directive?).
-
+3. Are the loops, the ones that calculate `x`, `y` and `z` independent?
+- **Answer**: Yes, the iterations are completely independent.
 
 ## Pulay_Overlap
 
 1. Are the calls to this procedure independent?
+- **Answer**: Yes.
 2. Are the loops inside this procedure independent? In other words, is it possible to execute this loop in any order? Are the modifications made in the `S_matrix` argument always done in different places (avoid data racing)?
 3. In the generation procedures, the ones that prepare lots of values to be calculated in the matrix operations. Are they independent?
   - If they are, `workshare` construct.
