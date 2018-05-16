@@ -20,8 +20,6 @@ $ make debug  # adds -g flag to compiling process
 
 ### Collecting (concurrency)
 
-Differently than the serial version, this one did not take long to complete. ~3 minutes.
-
 Run with:
 ```bash
 $ amplxe-cl -collect concurrency \ 	# specify which data to collect
